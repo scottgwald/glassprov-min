@@ -1,7 +1,12 @@
-# Python: Client or Server
+import gevent.monkey
+gevent.monkey.patch_all()
 import wearscript
 import argparse
 import time
+
+def ws_parse(parser):
+    print "running ws_parse"
+    wearscript.parse(callback, parser)
 
 def callback(ws, **kw):
 
@@ -18,4 +23,9 @@ def callback(ws, **kw):
     ws.send('ping', 'pong', time.time())
     ws.handler_loop()
 
-wearscript.parse(callback, argparse.ArgumentParser())
+if __name__ == '__main__':
+    serverThread = gevent.spawn(ws_parse, argparse.ArgumentParser())
+    print "And I made it past"
+    gevent.joinall([serverThread])
+
+# wearscript.parse(callback, argparse.ArgumentParser())
