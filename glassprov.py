@@ -14,13 +14,19 @@ def periodic_send(ws):
 def callback(ws, **kw):
     def nametag_received(chan, payload):
         print "Nametag received %s" % payload
+
+    def blob_received(chan, payload):
+        print "Server blob received %s" % payload
+
     print('Got args[%r]' % (kw,))
     print('Demo callback, prints all inputs and sends nothing')
     ws.send('blob', 'url', 'fromServerToClient')
     ws.subscribe('nametags', nametag_received)
+    ws.subscribe('blob', blob_received)
     gevent.spawn_later(5, periodic_send, ws)
-    while 1:
-        print("I am the server receiving the content %s" % ws.receive())
+    loop = gevent.spawn(ws.handler_loop)
+    # while 1:
+    #     print("I am the server receiving the content %s" % ws.receive())
 
 if __name__ == '__main__':
     # wearscript.parse(callback, argparse.ArgumentParser())
