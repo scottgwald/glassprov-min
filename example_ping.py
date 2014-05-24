@@ -9,22 +9,22 @@ def ws_parse(parser):
     wearscript.parse(callback, parser)
 
 def periodic_send(ws):
-	#TODO(scottgwald): catch dead websocket
+    #TODO(scottgwald): catch dead websocket
     ws.send('blob', 'theMessage34234', 'fromOneToTheOther')
     gevent.spawn_later(5, periodic_send, ws)
 
 def callback(ws, **kw):
 
     def get_ping(chan, resultChan, timestamp):
-    	print "Got ping %5f" % timestamp
-    	ws.send(resultChan, time.time());
+        print "Got ping %5f" % timestamp
+        ws.send(resultChan, time.time());
         # ws.publish(resultChan, timestamp, time.time(), ws.group_device)
 
     def get_pong(chan, timestamp):
-    	print "Got pong %5f" % timestamp
+        print "Got pong %5f" % timestamp
 
     def get_blob(chan, title, body):
-    	print "Got blob %s %s" % (title,body)
+        print "Got blob %s %s" % (title,body)
 
     ws.subscribe('ping', get_ping)
     ws.subscribe('pong', get_pong)
