@@ -14,7 +14,7 @@ def ws_parse(parser):
 
 def ws_send(ws, *argv):
     global ws_dict
-    print "Sending to socket " + ws_dict[ws]
+    print "Sending to socket " + ws_dict[ws] + " with args " + str(argv)
     try:
         ws.send(*argv)
     except geventwebsocket.exceptions.WebSocketError:
@@ -44,7 +44,7 @@ def callback(ws, **kw):
 
     def get_blob(chan, title, body):
         print "Server: Got blob %s %s" % (title,body)
-        broadcast(ws, title, body)
+        broadcast(ws, chan, title, body)
 
     ws.subscribe('register', register_client)
     ws.subscribe('blob', get_blob)
