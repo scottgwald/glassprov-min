@@ -20,16 +20,16 @@ def callback(ws, **kw):
         ws.send(resultChan, time.time());
         # ws.publish(resultChan, timestamp, time.time(), ws.group_device)
 
-    def get_pong(chan, timestamp):
-        print "Got pong %5f" % timestamp
+    def registered(chan, timestamp):
+        print "I'm registered as: " + timestamp
 
     def get_blob(chan, title, body):
         print "Got blob %s %s" % (title,body)
 
-    ws.subscribe('ping', get_ping)
-    ws.subscribe('pong', get_pong)
+    # ws.subscribe('ping', get_ping)
+    ws.subscribe('registered', registered)
     ws.subscribe('blob', get_blob)
-    ws.send('ping', 'pong', time.time())
+    ws.send('register', 'registered', "%.6f" % time.time())
     gevent.spawn_later(5, periodic_send, ws)
     ws.handler_loop()
 
