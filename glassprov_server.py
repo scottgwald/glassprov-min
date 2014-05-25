@@ -34,13 +34,13 @@ def broadcast(ws_src, *argv):
 
 def callback(ws, **kw):
     global ws_dict
-    def register_client(chan, resultChan, timestamp):
+    def register_client(chan, resultChan, client_name):
         if ws not in ws_dict.itervalues():
-            print "Registering websocket: " + timestamp
-            ws_dict[ws] = timestamp
+            print "Registering websocket: " + client_name
+            ws_dict[ws] = client_name
         else:
             print "Got a registration ping from the same websocket"
-        ws.send(resultChan, timestamp)
+        ws.send(resultChan, client_name)
 
     def get_blob(chan, title, body):
         print "Server: Got blob %s %s" % (title,body)
