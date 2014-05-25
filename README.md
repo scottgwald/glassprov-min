@@ -1,18 +1,13 @@
 ## The state of the state
 
-The only thing that works is example_ping. Run these in
-separate terminals.
+Working: glassprov\_client, glassprov\_server. Example:
 
-    python example_ping.py client ws://localhost:8112/
-    python example_ping.py server 8112
+    python glassprov_server.py server 8112
+    python glassprov_client.py client ws://localhost:8112/
 
 Standard out shows them talking to each other.
 
 # Random notes
-
-## Random
-
-* perhaps should do all sending on separate greenlets? 
 
 ## Registration protocol
 

@@ -12,22 +12,25 @@ def ws_parse(parser):
     print "running ws_parse"
     wearscript.parse(callback, parser)
 
+def ws_send(ws, *argv):
+    global ws_dict
+    print "Sending to socket " + ws_dict[ws]
+    try:
+        ws.send(*argv)
+    except geventwebsocket.exceptions.WebSocketError:
+        print "Sending failed, removing ws from ws_dict: " + ws_dict[ws], sys.exc_info()[0]
+        del ws_dict[ws]
+    except:
+        print "Unexpected exception while sending, removing ws from ws_dict: " + ws_dict[ws], sys.exc_info()[0]
+        del ws_dict[ws]
+
 # broadcasts to all but the sender
 def broadcast(ws_src, *argv):
     global ws_dict
     for ws in ws_dict.keys():
         # don't send it back to the source websocket
         if ws is not ws_src:
-            print "Sending to socket " + ws_dict[ws]
-            try:
-                ws.send(*argv)
-                # want this to throw a wearscript.socket.WebSocketException, but it doesn't
-            except geventwebsocket.exceptions.WebSocketError:
-                print "Sending failed, removing ws from ws_dict: " + ws_dict[ws], sys.exc_info()[0]
-                del ws_dict[ws]
-            except:
-                print "Unexpected exception while sending, removing ws from ws_dict: " + ws_dict[ws], sys.exc_info()[0]
-                del ws_dict[ws]
+            gevent.spawn(ws_send, ws, *argv)
 
 def callback(ws, **kw):
     global ws_dict
