@@ -9,6 +9,11 @@ Standard out shows them talking to each other.
 
 # Random notes
 
+## TODO
+
+* Does reconnection (e.g. when server is restarted and clients 
+    subsequently reconnect) fail to call callback?
+
 ## Registration protocol
 
 The server callback subscribes to 'register' messages.
@@ -23,6 +28,16 @@ an id to easily come up with a unique name.
 When the clients are phones and Glasses, they can use
 WS.groupDevice() to get their channel name. Then this
 will be consistent with the way the Go server works. 
+
+## Model for narrowcasting
+
+The Android client treats the channel with name equal to
+its own groupDevice string specially: for instance it
+checks to see if the second argument ("command") is "script"
+or "lambda". So I'll adopt the convention that we narrowcast
+to channels with a groupDevice name ("x") of a connected device,
+but we keep the channel name "x" rather than stripping it
+away and sending the rest of the arguments only to that device.
 
 ## Brainstorming
 
@@ -59,6 +74,12 @@ full lists
 Make sure that, if all Glasses are getting all messages,
 a Glass [x] receiving a message that is meant for [y],
 with (x != y) will not modify its behavior.
+
+## Bugs
+
+If I don't handle key error in unsubscribe, the server doesn't respond to new connections
+
+client occasionally dies when I switch back and forth between playground and custom endpoint
 
 
 
