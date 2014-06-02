@@ -7,6 +7,10 @@ Working: glassprov\_client, glassprov\_server. Example:
 
 Standard out shows them talking to each other.
 
+For playback:
+
+    python glassprov_playback.py
+
 # Random notes
 
 ## TODO
