@@ -13,33 +13,31 @@ import logging
 
 client_name = ""
 ws_global = ""
+actor_pointer = 0
+actor_list = ["will", "russ", "lexie", "max", "paul"];
+delta_to_start = 1
+delta_between_messages = 2
+number_of_messages = 50
 
 def ws_parse(parser):
     print "running ws_parse"
-    wearscript.parse(callback, parser)
-
-def periodic_send(ws):
-    #TODO(scottgwald): catch dead websocket
-    # ws.send('blob', 'theMessage34234', 'fromOneToTheOther')
-    ws.send('android:glass:f88fca2619bd', 'To: the charcoal glass. Love, ' + client_name);
-    ws.send('android:glass:f88fca25588b', 'To: the sky glass. Love, ' + client_name);
-    ws.send('android:glass:f88fca26183f', 'To: the cotton glass. Love, ' + client_name);
-    ws.send('android:glass:f88fca26273d', 'To: the shale glass. Love, ' + client_name);
-    gevent.spawn_later(5, periodic_send, ws)
+    wearscript.parse( callback, parser )
 
 def send_time(time):
-    print "Sending blob " + str(time)
-    ws_global.send('blob', 'will', str(time));
+    print "Sending blob to actor %s" % actor_list[actor_pointer]
+    ws_global.send('blob', actor_list[actor_pointer], str(time))
+    increment_actor_pointer()
+
+def increment_actor_pointer():
+    global actor_pointer
+    actor_pointer += 1
+    if actor_pointer > len(actor_list) - 1:
+        actor_pointer = 0
 
 def callback(ws, **kw):
     global client_name
     global ws_global
     ws_global = ws
-
-    def get_ping(chan, resultChan, timestamp):
-        print "Got ping %5f" % timestamp
-        ws.send(resultChan, time.time());
-        # ws.publish(resultChan, timestamp, time.time(), ws.group_device)
 
     def registered(chan, name):
         global client_name
@@ -51,15 +49,10 @@ def callback(ws, **kw):
 
     client_name = "%.6f" % time.time()
     print "Client ws callback, trying to register as " + client_name
-    # ws.subscribe('ping', get_ping)
-    ws.subscribe('registered', registered)
-    ws.subscribe('blob', get_blob)
-    ws.send('register', 'registered', client_name)
-    gevent.spawn_later(5, periodic_send, ws)
+    ws.subscribe( 'registered', registered)
+    ws.subscribe( 'blob', get_blob)
+    ws.send( 'register', 'registered', client_name)
     ws.handler_loop()
-
-def my_job(text):
-    print text
 
 def main(arg):
     sched = Scheduler()
@@ -67,22 +60,21 @@ def main(arg):
     logging.basicConfig()
     now = datetime.today()
     print "Now it's " + str( now )
-    starttime = now + timedelta( seconds = 1 )
-    delta5sec = timedelta( seconds = 5 )
+    starttime = now + timedelta( seconds = delta_to_start )
+    delta5sec = timedelta( seconds = delta_between_messages )
     thistime = starttime
 
-    one_min_every_5_sec = []
+    jobs = []
     print "Queueing jobs"
-    for i in range(12):
+    for i in range( number_of_messages ):
         print "Queueing job at " + str( thistime )
-        one_min_every_5_sec.append( sched.add_date_job( send_time, thistime, [ thistime ] ))
+        jobs.append( sched.add_date_job( send_time, thistime, [ thistime ] ))
         thistime += delta5sec
     print "Queued jobs"
     while True:
         sleep( 1 )
         sys.stdout.write( '.' )
         sys.stdout.flush()
-
 
 if __name__ == '__main__':
     serverGreenlet = gevent.spawn(ws_parse, argparse.ArgumentParser())
