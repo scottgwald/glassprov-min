@@ -3,6 +3,8 @@ gevent.monkey.patch_all()
 import wearscript
 import argparse
 import time
+import SimpleHTTPServer
+import SocketServer
 
 from datetime import datetime
 from datetime import timedelta
@@ -18,6 +20,14 @@ actor_list = ["will", "russ", "lexie", "max", "paul"];
 delta_to_start = 1
 delta_between_messages = 2
 number_of_messages = 50
+PORT = 8991
+
+def http_server(arg):
+    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+    httpd = SocketServer.TCPServer(( "", PORT ), Handler )
+
+    print "serving at port", PORT
+    httpd.serve_forever()
 
 def ws_parse(parser):
     print "running ws_parse"
@@ -38,6 +48,7 @@ def callback(ws, **kw):
     global client_name
     global ws_global
     ws_global = ws
+    print "Client client_endpoint: " + str(ws.ws.sock.getpeername())
 
     def registered(chan, name):
         global client_name
@@ -52,6 +63,9 @@ def callback(ws, **kw):
     ws.subscribe( 'registered', registered)
     ws.subscribe( 'blob', get_blob)
     ws.send( 'register', 'registered', client_name)
+    webserverGreenlet = gevent.spawn(http_server, "")
+    print "Open browser to http://localhost:" + str(PORT) + "/stage-displays/viewer.html"
+    schedulerGreenlet = gevent.spawn(main, "")
     ws.handler_loop()
 
 def main(arg):
@@ -78,7 +92,7 @@ def main(arg):
 
 if __name__ == '__main__':
     serverGreenlet = gevent.spawn(ws_parse, argparse.ArgumentParser())
-    schedulerGreenlet = gevent.spawn(main, "")
+    # schedulerGreenlet = gevent.spawn(main, "")
     print "And I made it past"
     # main()
-    gevent.joinall([serverGreenlet, schedulerGreenlet])
+    gevent.joinall([serverGreenlet])
