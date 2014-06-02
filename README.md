@@ -83,9 +83,19 @@ with (x != y) will not modify its behavior.
 
 ## Bugs
 
-If I don't handle key error in unsubscribe, the server doesn't respond to new connections
-
 client occasionally dies when I switch back and forth between playground and custom endpoint
+
+restarting client leads to duplicated messages broadcast by server:
+
+    Sending to socket dashboard:02/06/2014 @ 10:43:37 with args ('blob', 'max', '2014-06-02 10:43:54.399516')
+    server: Packing and sending
+    Sending to socket dashboard:02/06/2014 @ 10:43:37 with args ('blob', 'max', '2014-06-02 10:43:54.399516')
+    server: Packing and sending
+    Sending to socket dashboard:02/06/2014 @ 10:43:37 with args ('blob', 'max', '2014-06-02 10:43:54.399516')
+    server: Packing and sending
+
+Hypothesis: multiple reconnecting websockets register with same id, 1-sec resolution is
+too coarse
 
 ## Todos
 
