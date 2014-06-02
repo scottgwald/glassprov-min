@@ -13,6 +13,7 @@ from time import sleep
 import sys
 import logging
 import subprocess
+import glassprov_server
 
 client_name = ""
 ws_global = ""
@@ -27,10 +28,7 @@ log_outfile_name = "playback.log"
 LOG_OUTFILE = open(log_outfile_name, 'wb')
 
 def start_ws_server():
-    p = subprocess.Popen(['python', 'glassprov_server.py', 'server', str(WS_PORT)])
-    r = p.wait()
-    if r:
-        raise RuntimeError('An error occurred running the ws server')
+    wearscript.websocket_server(glassprov_server.callback, WS_PORT)
 
 def open_page():
     print "Opening page in Chrome"
