@@ -12,6 +12,7 @@ from apscheduler.scheduler import Scheduler
 from time import sleep
 import sys
 import logging
+import subprocess
 
 client_name = ""
 ws_global = ""
@@ -19,15 +20,34 @@ actor_pointer = 0
 actor_list = ["will", "russ", "lexie", "max", "paul"];
 delta_to_start = 1
 delta_between_messages = 2
-number_of_messages = 50
-PORT = 8991
+number_of_messages = 100
+HTTP_PORT = 8991
+WS_PORT = 8112
+log_outfile_name = "playback.log"
+LOG_OUTFILE = open(log_outfile_name, 'wb')
 
-def http_server(arg):
+def start_ws_server():
+    p = subprocess.Popen(['python', 'glassprov_server.py', 'server', str(WS_PORT)])
+    r = p.wait()
+    if r:
+        raise RuntimeError('An error occurred running the ws server')
+
+def open_page():
+    print "Opening page in Chrome"
+    p = subprocess.Popen(['/usr/bin/open', '-a', '/Applications/Google Chrome.app', 'http://localhost:8991/stage-displays/viewer.html'], stdout=LOG_OUTFILE)
+    r = p.wait()
+    if r:
+        raise RuntimeError('An error occurred opening the page')
+
+def http_server():
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(( "", PORT ), Handler )
+    httpd = SocketServer.TCPServer(( "", HTTP_PORT ), Handler )
 
-    print "serving at port", PORT
+    print "serving at port", HTTP_PORT
     httpd.serve_forever()
+
+def start_ws_client():
+    wearscript.websocket_client_factory( callback, 'ws://localhost:' + str(WS_PORT) + '/' )
 
 def ws_parse(parser):
     print "running ws_parse"
@@ -63,8 +83,9 @@ def callback(ws, **kw):
     ws.subscribe( 'registered', registered)
     ws.subscribe( 'blob', get_blob)
     ws.send( 'register', 'registered', client_name)
-    webserverGreenlet = gevent.spawn(http_server, "")
-    print "Open browser to http://localhost:" + str(PORT) + "/stage-displays/viewer.html"
+    webserverGreenlet = gevent.spawn(http_server)
+    open_page_greenlet = gevent.spawn(open_page)
+    print "Open browser to http://localhost:" + str(HTTP_PORT) + "/stage-displays/viewer.html"
     schedulerGreenlet = gevent.spawn(main, "")
     ws.handler_loop()
 
@@ -91,8 +112,12 @@ def main(arg):
         sys.stdout.flush()
 
 if __name__ == '__main__':
-    serverGreenlet = gevent.spawn(ws_parse, argparse.ArgumentParser())
+    parser = argparse.ArgumentParser()
+
+    ws_server_greenlet = gevent.spawn(start_ws_server)
+    ws_client_greenlet = gevent.spawn(start_ws_client)
+    # client_greenlet = gevent.spawn(ws_parse, argparse.ArgumentParser())
     # schedulerGreenlet = gevent.spawn(main, "")
     print "And I made it past"
     # main()
-    gevent.joinall([serverGreenlet])
+    gevent.joinall([ws_server_greenlet, ws_client_greenlet])
