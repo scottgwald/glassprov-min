@@ -39,6 +39,12 @@ to channels with a groupDevice name ("x") of a connected device,
 but we keep the channel name "x" rather than stripping it
 away and sending the rest of the arguments only to that device.
 
+## How to launch "playback"
+
+    python glassprov_server.py server 8112
+    python glassprov_playback.py client ws://localhost:8112/
+    http://localhost:8112/stage-displays/viewer.html
+
 ## Brainstorming
 
 Need simplest possible protocol for GlassProv.
@@ -81,6 +87,20 @@ If I don't handle key error in unsubscribe, the server doesn't respond to new co
 
 client occasionally dies when I switch back and forth between playground and custom endpoint
 
+## Todos
+
+1. wake feature
+2. ping back indicating glasses connected
+
+nice features:
+(1) clear screen
+(2) allow curation
+
+make sure I can turn off debug to stop reuse
+
+## before we go
+
+* iconic ar video
 
 
 
