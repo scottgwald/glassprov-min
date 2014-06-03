@@ -74,7 +74,11 @@ def callback(ws, **kw):
         client_name = name
 
     def get_blob(chan, title, body):
-        print "Got blob %s %s" % (title,body)
+        if title == "startShow":
+            print "I'M A'GONNA START THE SHOW"
+            do_show()
+        else:
+            print "Got blob %s %s" % (title,body)
 
     client_name = "%.6f" % time.time()
     print "Client ws callback, trying to register as " + client_name
@@ -87,10 +91,7 @@ def callback(ws, **kw):
     schedulerGreenlet = gevent.spawn(main, "")
     ws.handler_loop()
 
-def main(arg):
-    sched = Scheduler()
-    sched.start()
-    logging.basicConfig()
+def do_show():
     now = datetime.today()
     print "Now it's " + str( now )
     starttime = now + timedelta( seconds = delta_to_start )
@@ -104,6 +105,12 @@ def main(arg):
         jobs.append( sched.add_date_job( send_time, thistime, [ thistime ] ))
         thistime += delta5sec
     print "Queued jobs"
+
+def main(arg):
+    global sched
+    sched = Scheduler()
+    sched.start()
+    logging.basicConfig()
     while True:
         sleep( 1 )
         sys.stdout.write( '.' )
@@ -114,8 +121,6 @@ if __name__ == '__main__':
 
     ws_server_greenlet = gevent.spawn(start_ws_server)
     ws_client_greenlet = gevent.spawn(start_ws_client)
-    # client_greenlet = gevent.spawn(ws_parse, argparse.ArgumentParser())
-    # schedulerGreenlet = gevent.spawn(main, "")
+
     print "And I made it past"
-    # main()
     gevent.joinall([ws_server_greenlet, ws_client_greenlet])

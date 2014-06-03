@@ -1,4 +1,4 @@
-## The state of the state
+# The state of the state
 
 Working: glassprov\_client, glassprov\_server. Example:
 
@@ -10,6 +10,12 @@ Standard out shows them talking to each other.
 For playback:
 
     python glassprov_playback.py
+
+# Playback -- development ongoing
+
+Usage model: represent a show as a set of timedeltas. Open a browser
+window and accept a key command to start the show.
+
 
 # Random notes
 

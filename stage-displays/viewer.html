@@ -245,6 +245,14 @@
       $('.q6').textfill({ maxFontPixels: 75 });
     });
     
+    $(document).keydown(function(event) {
+      if (event.keyCode ==  32) {
+        if (typeof ws != "undefined") {
+          ws.send('blob', 'startShow', '');
+        }
+      };
+    })
+
     </script>
 
     <script>
