@@ -26,7 +26,7 @@
     <script type="text/javascript" src="js/underscore.js"></script>
 
     <script type="text/javascript">
-
+        var didRegister = false;
         Date.prototype.today = function () {
             return ((this.getDate() < 10)?"0":"") + this.getDate() +"/"+(((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) +"/"+ this.getFullYear();
         }
@@ -74,11 +74,15 @@
         wssuccess = function(data){
           server = data.wsurl;
           Socket = new ReconnectingWebSocket(server);
+          // Socket = new WebSocket(server);
           console.log("Made the socket.");
           ws = myWearScriptConnectionFactory(Socket, function (connected) {
               console.log('Connected: ' + connected);
               ws.subscribe('registered', registered);
-              ws.send('register', 'registered', "dashboard:" + currentTimeString());
+              if (!didRegister) {
+                ws.send('register', 'registered', "dashboard:" + currentTimeString());
+                didRegister = true;
+              }
               ws.subscribe('blob', blob_cb);
           });
 
