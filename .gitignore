@@ -1,3 +1,6 @@
 .DS_Store
 *.pyc
 *~
+
+# symlink for easy autocomplete
+playback_glassprov.py
