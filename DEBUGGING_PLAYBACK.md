@@ -16,8 +16,9 @@ it.
 
 Strategy:
 
-figure out all the ways that the anonymous "function (connected)" 
-argument to myWearScriptConnectionFactory can be called. Here goes:
+In `viewer.html` figure out all the ways that the anonymous "function (connected)"
+argument to `myWearScriptConnectionFactory` can be called. Here goes:
 
-
-
+* It's called `glassConnectedCallback` in myWearScriptConnectionFactory
+* In that function it is hooked into the "subscriptions" callback
+  `subscriptions_cb`, which we subscribe to in `myWearScriptConnectionFactory.onopen`.
